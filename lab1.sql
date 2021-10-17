@@ -37,3 +37,11 @@ lub we W³oszech (Italy)
 /*1*/
 --SELECT CompanyName,Country FROM Customers WHERE (Country = 'Japan') OR (Country = 'Italy')
 
+/*Æwiczenie
+Napisz instrukcjê select tak aby wybraæ numer zlecenia, datê zamówienia, numer
+klienta dla wszystkich niezrealizowanych jeszcze zleceñ, dla których krajem
+odbiorcy jest Argentyna
+*/
+
+--SELECT OrderID,OrderDate,CustomerID FROM Orders WHERE (ShippedDate IS NULL ) AND ( ShipCountry = 'Argentina')
+
