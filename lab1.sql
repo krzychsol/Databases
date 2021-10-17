@@ -18,3 +18,13 @@ na literê B lub L
 --SELECT CategoryName FROM Categories WHERE Description LIKE '%,%' 
 /*5*/
 --SELECT * FROM Customers WHERE CompanyName LIKE '%Store%'
+
+/*Zakres wartoœci:
+1. Szukamy informacji o produktach o cenach mniejszych ni¿ 10 lub wiêkszych ni¿ 20
+2. Wybierz nazwy i ceny produktów o cenie jednostkowej pomiêdzy 20.00 a 30.00
+*/
+
+/*1*/
+--SELECT * FROM Products WHERE UnitPrice NOT BETWEEN 10 AND 20
+/*2*/
+--SELECT ProductName,UnitPrice FROM Products WHERE UnitPrice BETWEEN 20 AND 30
