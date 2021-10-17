@@ -28,3 +28,12 @@ na literê B lub L
 --SELECT * FROM Products WHERE UnitPrice NOT BETWEEN 10 AND 20
 /*2*/
 --SELECT ProductName,UnitPrice FROM Products WHERE UnitPrice BETWEEN 20 AND 30
+
+/*Warunki logiczne -
+1. Wybierz nazwy i kraje wszystkich klientów maj¹cych siedziby w Japonii (Japan)
+lub we W³oszech (Italy)
+*/
+
+/*1*/
+--SELECT CompanyName,Country FROM Customers WHERE (Country = 'Japan') OR (Country = 'Italy')
+
