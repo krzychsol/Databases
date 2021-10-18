@@ -61,4 +61,13 @@ lub we W³oszech (Italy), wyniki posortuj tak jak w pkt 1
 --3
 --SELECT CompanyName,Country FROM Customers WHERE ( Country = 'Japan' ) OR ( Country = 'Italy' ) ORDER BY Country,CompanyName
 
+/* Æwiczenie:
+1. Napisz polecenie, które oblicza wartoœæ ka¿dej pozycji zamówienia o numerze 10250
+2. Napisz polecenie które dla ka¿dego dostawcy (supplier) poka¿e pojedyncz¹ kolumnê zawieraj¹c¹ nr telefonu i nr faksu w formacie
+(numer telefonu i faksu maj¹ byæ oddzielone przecinkiem)
+*/
 
+--1
+--SELECT ProductID,UnitPrice*Quantity AS 'Value' FROM [Order Details] WHERE OrderID = 10250
+--2
+--SELECT CompanyName,Phone+','+Fax AS 'Phone and Fax' FROM Suppliers
