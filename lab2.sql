@@ -1,8 +1,8 @@
 /* 
-1. Napisz polecenie select, za pomoc¹ którego uzyskasz tytu³ i numer ksi¹¿ki
-2. Napisz polecenie, które wybiera tytu³ o numerze 10
-3. Napisz polecenie select, za pomoc¹ którego uzyskasz numer ksi¹¿ki (nr tyu³u) i
-autora z tablicy title dla wszystkich ksi¹¿ek, których autorem jest Charles
+1. Napisz polecenie select, za pomocÄ… ktÃ³rego uzyskasz tytuÅ‚ i numer ksiÄ…Å¼ki
+2. Napisz polecenie, ktÃ³re wybiera tytuÅ‚ o numerze 10
+3. Napisz polecenie select, za pomocÄ… ktÃ³rego uzyskasz numer ksiÄ…Å¼ki (nr tyuÅ‚u) i
+autora z tablicy title dla wszystkich ksiÄ…Å¼ek, ktÃ³rych autorem jest Charles
 Dickens lub Jane Austen
 */
 
@@ -14,13 +14,13 @@ Dickens lub Jane Austen
 --SELECT title_no, author FROM title WHERE (author = 'Charles Dickens') OR (author = 'Jane Austen')
 
 /*
-1. Napisz polecenie, które wybiera numer tytu³u i tytu³ dla wszystkich ksi¹¿ek,
-których tytu³y zawieraj¹cych s³owo „adventure”
-2. Napisz polecenie, które wybiera numer czytelnika, oraz zap³acon¹ karê
-3. Napisz polecenie, które wybiera wszystkie unikalne pary miast i stanów z tablicy
+1. Napisz polecenie, ktÃ³re wybiera numer tytuÅ‚u i tytuÅ‚ dla wszystkich ksiÄ…Å¼ek,
+ktÃ³rych tytuÅ‚y zawierajÄ…cych sÅ‚owo â€adventureâ€
+2. Napisz polecenie, ktÃ³re wybiera numer czytelnika, oraz zapÅ‚aconÄ… karÄ™
+3. Napisz polecenie, ktÃ³re wybiera wszystkie unikalne pary miast i stanÃ³w z tablicy
 adult.
-4. Napisz polecenie, które wybiera wszystkie tytu³y z tablicy title i wyœwietla je w
-porz¹dku alfabetycznym.
+4. Napisz polecenie, ktÃ³re wybiera wszystkie tytuÅ‚y z tablicy title i wyÅ›wietla je w
+porzÄ…dku alfabetycznym.
 */
 
 --1
@@ -34,48 +34,48 @@ porz¹dku alfabetycznym.
 --SELECT title FROM title ORDER BY title 
 
 /*
-1. Napisz polecenie, które:
-– wybiera numer cz³onka biblioteki (member_no), isbn ksi¹¿ki (isbn) i watroœæ
-naliczonej kary (fine_assessed) z tablicy loanhist dla wszystkich wypo¿yczeñ
-dla których naliczono karê (wartoœæ nie NULL w kolumnie fine_assessed)
-– stwórz kolumnê wyliczeniow¹ zawieraj¹c¹ podwojon¹ wartoœæ kolumny
+1. Napisz polecenie, ktÃ³re:
+â€“ wybiera numer czÅ‚onka biblioteki (member_no), isbn ksiÄ…Å¼ki (isbn) i watroÅ›Ä‡
+naliczonej kary (fine_assessed) z tablicy loanhist dla wszystkich wypoÅ¼yczeÅ„
+dla ktÃ³rych naliczono karÄ™ (wartoÅ›Ä‡ nie NULL w kolumnie fine_assessed)
+â€“ stwÃ³rz kolumnÄ™ wyliczeniowÄ… zawierajÄ…cÄ… podwojonÄ… wartoÅ›Ä‡ kolumny
 fine_assessed
-– stwórz alias ‘double fine’ dla tej kolumny
+â€“ stwÃ³rz alias â€˜double fineâ€™ dla tej kolumny
 */
 
 --SELECT member_no,isbn,fine_assessed,2*fine_assessed AS 'double fine' FROM loanhist WHERE fine_assessed IS NOT NULL 
 
 /*
-1. Napisz polecenie, które
-– generuje pojedyncz¹ kolumnê, która zawiera kolumny: firstname (imiê
-cz³onka biblioteki), middleinitial (inicja³ drugiego imienia) i lastname
-(nazwisko) z tablicy member dla wszystkich cz³onków biblioteki, którzy
-nazywaj¹ siê Anderson
-– nazwij tak powsta³¹ kolumnê email_name (u¿yj aliasu email_name dla
+1. Napisz polecenie, ktÃ³re
+â€“ generuje pojedynczÄ… kolumnÄ™, ktÃ³ra zawiera kolumny: firstname (imiÄ™
+czÅ‚onka biblioteki), middleinitial (inicjaÅ‚ drugiego imienia) i lastname
+(nazwisko) z tablicy member dla wszystkich czÅ‚onkÃ³w biblioteki, ktÃ³rzy
+nazywajÄ… siÄ™ Anderson
+â€“ nazwij tak powstaÅ‚Ä… kolumnÄ™ email_name (uÅ¼yj aliasu email_name dla
 kolumny)
-– zmodyfikuj polecenie, tak by zwróci³o „listê proponowanych loginów e-mail”
-utworzonych przez po³¹czenie imienia cz³onka biblioteki, z inicja³em
-drugiego imienia i pierwszymi dwoma literami nazwiska (wszystko ma³ymi
-ma³ymi literami).
-– Wykorzystaj funkcjê SUBSTRING do uzyskania czêœci kolumny
-znakowej oraz LOWER do zwrócenia wyniku ma³ymi literami.
-Wykorzystaj operator (+) do po³¹czenia stringów.
+â€“ zmodyfikuj polecenie, tak by zwrÃ³ciÅ‚o â€listÄ™ proponowanych loginÃ³w e-mailâ€
+utworzonych przez poÅ‚Ä…czenie imienia czÅ‚onka biblioteki, z inicjaÅ‚em
+drugiego imienia i pierwszymi dwoma literami nazwiska (wszystko maÅ‚ymi
+maÅ‚ymi literami).
+â€“ Wykorzystaj funkcjÄ™ SUBSTRING do uzyskania czÄ™Å›ci kolumny
+znakowej oraz LOWER do zwrÃ³cenia wyniku maÅ‚ymi literami.
+Wykorzystaj operator (+) do poÅ‚Ä…czenia stringÃ³w.
 */
 
---SELECT LOWER(firstname+middleinitial+SUBSTRING(lastname,1,2)) AS 'email_name' 
+--SELECT REPLACE(LOWER(firstname+middleinitial+SUBSTRING(lastname,1,2)),' ','') AS 'email_name' 
 --FROM member WHERE lastname = 'Anderson'
 
 /*
-1. Napisz polecenie, które wybiera title i title_no z tablicy title.
-§ Wynikiem powinna byæ pojedyncza kolumna o formacie jak w przyk³adzie
-poni¿ej:
+1. Napisz polecenie, ktÃ³re wybiera title i title_no z tablicy title.
+Â§ Wynikiem powinna byÄ‡ pojedyncza kolumna o formacie jak w przykÅ‚adzie
+poniÅ¼ej:
 The title is: Poems, title number 7
-§ Czyli zapytanie powinno zwracaæ pojedyncz¹ kolumnê w oparciu o
-wyra¿enie, które ³¹czy 4 elementy:
-sta³a znakowa ‘The title is:’
-wartoœæ kolumny title
-sta³a znakowa ‘title number’
-wartoœæ kolumny title_no
+Â§ Czyli zapytanie powinno zwracaÄ‡ pojedynczÄ… kolumnÄ™ w oparciu o
+wyraÅ¼enie, ktÃ³re Å‚Ä…czy 4 elementy:
+staÅ‚a znakowa â€˜The title is:â€™
+wartoÅ›Ä‡ kolumny title
+staÅ‚a znakowa â€˜title numberâ€™
+wartoÅ›Ä‡ kolumny title_no
 */
 
 --SELECT 'The title is: '+title+' , title number '+CAST(title_no AS varchar) FROM title
