@@ -124,12 +124,75 @@ WHERE ISNULL((SELECT COUNT(*)
                 AND YEAR(lh.in_date) = 2001
                 AND MONTH(lh.in_date) = 12), 0) > 1
 
+/*4
+Podaj listę członków biblioteki (imię, nazwisko) mieszkających w Arizonie (AZ), którzy mają
+więcej niż dwoje dzieci zapisanych do biblioteki oraz takich, którzy mieszkają w Kalifornii (CA)
+i mają więcej niż troje dzieci zapisanych do bibliotek. Dla każdej z tych osób podaj liczbę książek
+przeczytanych (oddanych) przez daną osobę i jej dzieci w grudniu 2001 (użyj operatora union).
+ */
+
+SELECT firstname,lastname,
+(SELECT COUNT(*) FROM loanhist AS lh
+WHERE lh.member_no = a.member_no
+OR (lh.member_no
+    IN(SELECT j.member_no
+    FROM juvenile AS j
+    WHERE j.adult_member_no = a.member_no))
+AND YEAR(lh.in_date)=2001 AND MONTH(in_date)=12) AS returned
+FROM member
+JOIN adult a on member.member_no = a.member_no
+JOIN juvenile j on a.member_no = j.adult_member_no
+WHERE a.state = 'AZ'
+AND (SELECT COUNT(*)
+    FROM juvenile AS j
+    WHERE j.adult_member_no = a.member_no
+    GROUP BY j.adult_member_no) > 2
+UNION
+SELECT firstname,lastname,
+(SELECT COUNT(*) FROM loanhist AS lh
+WHERE lh.member_no = a.member_no
+OR (lh.member_no
+    IN(SELECT j.member_no
+    FROM juvenile AS j
+    WHERE j.adult_member_no = a.member_no))
+AND YEAR(lh.in_date)=2001 AND MONTH(in_date)=12) AS returned
+FROM member
+JOIN adult a on member.member_no = a.member_no
+JOIN juvenile j on a.member_no = j.adult_member_no
+WHERE a.state = 'CA'
+AND (SELECT COUNT(*)
+    FROM juvenile AS j
+    WHERE j.adult_member_no = a.member_no
+    GROUP BY j.adult_member_no) > 3
+
+/*
+1)
+Napisz polecenie, które wyświetla listę dzieci będących członkami biblioteki. Interesuje nas imię, nazwisko,
+data urodzenia dziecka, adres zamieszkania, imię i nazwisko rodzica oraz liczba aktualnie wypożyczonych książek.
+ */
+
+SELECT member.member_no,firstname,lastname,birth_date,street,city,state,
+(SELECT firstname+' '+lastname
+    FROM member AS m
+    WHERE m.member_no = a.member_no
+    AND j.adult_member_no = a.member_no) AS [parent name],
+ISNULL((SELECT COUNT(*) FROM loan AS l WHERE l.member_no = member.member_no GROUP BY l.member_no),0) AS borrowed
+FROM member
+JOIN juvenile j on member.member_no = j.member_no
+JOIN adult a on j.adult_member_no = a.member_no
 
 
+/*
+1. Wypisz wszystkich członków biblioteki z adresami i info czy jest dzieckiem czy nie i
+ilość wypożyczeń w poszczególnych latach i miesiącach.
+ */
 
-
-
-
+SELECT firstname,lastname,street,city,state,
+IIF(j.member_no IS NULL,'adult','juvenile') AS status,
+ISNULL((SELECT COUNT(*) FROM loanhist AS lh WHERE lh.member_no = member.member_no GROUP BY lh.member_no),0) AS borrowed
+FROM member
+LEFT JOIN juvenile j ON member.member_no = j.member_no
+LEFT JOIN adult a ON ( a.member_no = member.member_no AND j.member_no IS NULL ) OR (j.adult_member_no = a.member_no )
 
 
 
