@@ -118,6 +118,76 @@ GROUP BY e.EmployeeID,FirstName,LastName
 ORDER BY FirstName,LastName
 
 /*
+Który z pracowników obsłużył najaktywniejszy (obsłużył zamówienia o
+największej wartości) w 1997r, podaj imię i nazwisko takiego pracownika
+ */
+
+--join
+SELECT TOP 1 e.EmployeeID,firstname,lastname,
+       SUM(Quantity*UnitPrice*(1-Discount))+(SELECT SUM(Freight) FROM Orders o2
+                                                WHERE o2.EmployeeID = e.EmployeeID) AS totalValue
+FROM Employees e
+JOIN Orders O on e.EmployeeID = O.EmployeeID
+JOIN [Order Details] od ON O.OrderID = od.OrderID
+GROUP BY e.EmployeeID, firstname, lastname
+ORDER BY totalValue DESC
+
+/*
+Ogranicz wynik z pkt 1 tylko do pracowników
+a) którzy mają podwładnych
+b) którzy nie mają podwładnych
+ */
+
+--a
+SELECT e.EmployeeID,e.firstname,e.lastname,
+       SUM(Quantity*UnitPrice*(1-Discount))+(SELECT SUM(Freight) FROM Orders o2
+                                            WHERE o2.EmployeeID = e.EmployeeID)
+FROM Employees e
+JOIN Orders O on e.EmployeeID = O.EmployeeID
+JOIN [Order Details] od on O.OrderID = od.OrderID
+JOIN Employees e2 ON e.EmployeeID = e2.ReportsTo
+GROUP BY e.EmployeeID, e.firstname, e.lastname
+
+--b
+SELECT e.EmployeeID,e.firstname,e.lastname,
+       SUM(Quantity*UnitPrice*(1-Discount))+(SELECT SUM(Freight) FROM Orders o2
+                                            WHERE o2.EmployeeID = e.EmployeeID)
+FROM Employees e
+JOIN Orders O on e.EmployeeID = O.EmployeeID
+JOIN [Order Details] od on O.OrderID = od.OrderID
+LEFT JOIN Employees e2 ON e.EmployeeID = e2.ReportsTo
+WHERE e2.FirstName IS NULL
+GROUP BY e.EmployeeID, e.firstname, e.lastname
+
+--Zmodyfikuj rozwiązania z pkt 3 tak aby dla pracowników pokazać jeszcze datę
+--ostatnio obsłużonego zamówienia
+
+--a
+SELECT TOP 1 e.EmployeeID,e.firstname,e.lastname,
+       SUM(Quantity*UnitPrice*(1-Discount))+(SELECT SUM(Freight) FROM Orders o2
+                                            WHERE o2.EmployeeID = e.EmployeeID),
+       OrderDate
+FROM Employees e
+JOIN Orders O on e.EmployeeID = O.EmployeeID
+JOIN [Order Details] od on O.OrderID = od.OrderID
+JOIN Employees e2 ON e.EmployeeID = e2.ReportsTo
+GROUP BY e.EmployeeID, e.firstname, e.lastname, OrderDate
+ORDER BY OrderDate DESC
+
+--b
+SELECT TOP 1 e.EmployeeID,e.firstname,e.lastname,
+       SUM(Quantity*UnitPrice*(1-Discount))+(SELECT SUM(Freight) FROM Orders o2
+                                            WHERE o2.EmployeeID = e.EmployeeID),
+       OrderDate
+FROM Employees e
+JOIN Orders O on e.EmployeeID = O.EmployeeID
+JOIN [Order Details] od on O.OrderID = od.OrderID
+LEFT JOIN Employees e2 ON e.EmployeeID = e2.ReportsTo
+WHERE e2.FirstName IS NULL
+GROUP BY e.EmployeeID, e.firstname, e.lastname,OrderDate
+ORDER BY OrderDate DESC
+
+/*
  Zamówienia z Freight większym niż AVG danego roku.
  */
 
