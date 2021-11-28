@@ -70,4 +70,139 @@ SELECT CategoryName,P.ProductName,P.UnitPrice,
 FROM Categories C
 JOIN Products P on C.CategoryID = P.CategoryID
 
+-- Produkty kupowane przez więcej niż jednego klienta w marcu 1997
+SELECT DISTINCT od.ProductID
+FROM [Order Details] od
+JOIN Orders o on od.OrderID = o.OrderID
+WHERE YEAR(OrderDate) = 1997 AND MONTH(OrderDate) = 3
+GROUP BY od.ProductID
+HAVING COUNT(*) > 1
+ORDER BY od.ProductID
 
+-- Podaj produkty kupowane przez więcej niż jednego klienta w marcu 1997 - wersja z labów
+with o1 as
+    (select CustomerID, ProductID
+    from Orders
+    inner join [Order Details] [OD] on Orders.OrderID = [OD].OrderID
+    where year(OrderDate) = 1997 and month(OrderDate) = 3)
+
+select distinct [OD].ProductID
+from Orders as o2
+inner join [Order Details] [OD] on o2.OrderID = [OD].OrderID
+inner join o1 on [OD].ProductID = o1.ProductID
+where o2.CustomerID > o1.CustomerID and year(OrderDate) = 1997 and month(OrderDate) = 3
+
+--Dla każdego pracownika (imię i nazwisko) podaj łączną wartość zamówień obsłużonych przez tego pracownika
+-- (przy obliczaniu wartości zamówień uwzględnij cenę za przesyłkę)
+--subqueries
+
+SELECT firstname+' '+lastname AS name,
+       (SELECT CAST(ROUND(SUM(Quantity*UnitPrice*(1-Discount)),2) AS DECIMAL(9,2)) FROM [Order Details] od
+       JOIN Orders o on o.OrderID = od.OrderID
+           WHERE e.EmployeeID = o.EmployeeID)
+        +
+        (SELECT SUM(Freight) FROM Orders o2
+        WHERE e.EmployeeID = o2.EmployeeID) AS totalValue
+FROM Employees e
+ORDER BY FirstName,LastName
+--OFFSET 4 ROWS : ZACZYNA OD 5 WIERSZA
+
+--join
+SELECT e.EmployeeID,firstname+' '+lastname AS name,
+       SUM(Quantity*UnitPrice*(1-Discount)) + (SELECT SUM(Freight) FROM Orders o2
+                                                WHERE o2.EmployeeID = e.EmployeeID) AS totalValue
+FROM Employees e
+JOIN Orders o on e.EmployeeID = o.EmployeeID
+JOIN [Order Details] od on o.OrderID = od.OrderID
+GROUP BY e.EmployeeID,FirstName,LastName
+ORDER BY FirstName,LastName
+
+/*
+ Zamówienia z Freight większym niż AVG danego roku.
+ */
+
+WITH t1 AS
+(SELECT YEAR(OrderDate) yr,AVG(Freight) fr
+FROM Orders o
+GROUP BY YEAR(OrderDate))
+
+SELECT OrderID
+FROM Orders
+WHERE Freight > (SELECT fr FROM t1
+    WHERE YEAR(Orders.OrderDate) = YEAR(yr))
+
+-- 1. Wybierz nazwy i numery telefonów klientów, którym w 1997 roku przesyłki dostarczała firma United Package.
+
+-- subqueries
+SELECT CompanyName,Phone
+FROM Customers
+WHERE CustomerID IN
+      (SELECT CustomerID
+          FROM Orders
+          WHERE YEAR(OrderDate)=1997
+          AND ShipVia IN
+              (SELECT ShipperID
+                  FROM Shippers S
+                  WHERE S.CompanyName = 'United Package'))
+
+--join
+SELECT DISTINCT C.CompanyName,C.Phone
+FROM Customers C
+JOIN Orders O on C.CustomerID = O.CustomerID AND YEAR(OrderDate)=1997
+JOIN Shippers S on O.ShipVia = S.ShipperID AND S.CompanyName = 'United Package'
+
+-- 2. Wybierz nazwy i numery telefonów klientów, którzy kupowali produkty z kategorii Confections.
+
+-- subqueries
+SELECT CompanyName,Phone
+FROM Customers
+WHERE CustomerID IN
+      (SELECT CustomerID
+          FROM Orders
+          WHERE OrderID IN
+                (SELECT OrderID
+                    FROM [Order Details] od
+                    WHERE ProductID IN
+                          (SELECT ProductID
+                              FROM Products p
+                              WHERE CategoryID IN
+                                    (SELECT CategoryID
+                                        FROM Categories c
+                                        WHERE c.CategoryName = 'Confections'))))
+
+--join
+SELECT DISTINCT CompanyName,Phone
+FROM Customers c
+JOIN Orders O on c.CustomerID = O.CustomerID
+JOIN [Order Details] [O D] on O.OrderID = [O D].OrderID
+JOIN Products P on [O D].ProductID = P.ProductID
+JOIN Categories C2 on C2.CategoryID = P.CategoryID AND C2.CategoryName = 'Confections'
+
+-- 3. Wybierz nazwy i numery telefonów klientów, którzy nie kupowali produktów z kategorii Confections.
+
+--subqueries
+SELECT CompanyName,Phone
+FROM Customers
+WHERE CustomerID NOT IN
+      (SELECT CustomerID
+          FROM Orders
+          WHERE OrderID IN
+                (SELECT OrderID
+                    FROM [Order Details] od
+                    WHERE ProductID IN
+                          (SELECT ProductID
+                              FROM Products p
+                              WHERE CategoryID IN
+                                    (SELECT CategoryID
+                                        FROM Categories c
+                                        WHERE c.CategoryName = 'Confections'))))
+
+--join
+SELECT C.CompanyName, C.Phone
+FROM Customers AS C
+WHERE C.CustomerID NOT IN (SELECT CustomerID
+                           FROM Categories AS C
+                                    INNER JOIN Products P ON C.CategoryID = P.CategoryID
+                                    INNER JOIN [Order Details] OD ON OD.ProductID = P.ProductID
+                                    INNER JOIN Orders O ON OD.OrderID = O.OrderID
+                           WHERE C.CategoryName = 'Confections')
