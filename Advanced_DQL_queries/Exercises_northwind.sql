@@ -276,3 +276,45 @@ WHERE C.CustomerID NOT IN (SELECT CustomerID
                                     INNER JOIN [Order Details] OD ON OD.ProductID = P.ProductID
                                     INNER JOIN Orders O ON OD.OrderID = O.OrderID
                            WHERE C.CategoryName = 'Confections')
+                           
+ --Klienci, którzy nie zamówili nigdy nic z kategorii 'Seafood' w trzech wersjach.
+
+--subqueries
+SELECT CustomerID
+FROM Customers c
+WHERE CustomerID NOT IN
+    (SELECT CustomerID
+          FROM Orders
+          WHERE OrderID IN
+                (SELECT OrderID
+                    FROM [Order Details] od
+                    WHERE ProductID IN
+                          (SELECT ProductID
+                              FROM Products p
+                              WHERE CategoryID IN
+                                    (SELECT CategoryID
+                                        FROM Categories c
+                                        WHERE c.CategoryName = 'Seafood'))))
+
+--join
+SELECT CustomerID
+FROM Customers c
+WHERE CustomerID NOT IN
+      (SELECT CustomerID FROM Orders
+        JOIN [Order Details] [O D] on Orders.OrderID = [O D].OrderID
+        JOIN Products P on [O D].ProductID = P.ProductID
+        JOIN Categories C2 on C2.CategoryID = P.CategoryID
+        WHERE C2.CategoryName = 'Seafood')
+
+--exist
+SELECT CustomerID
+FROM Customers c
+WHERE NOT EXISTS ( SELECT CustomerID FROM Orders o
+                    WHERE o.CustomerID = c.CustomerID
+                    AND EXISTS( SELECT OrderID FROM [Order Details] od
+                                WHERE od.OrderID = o.OrderID
+                                AND EXISTS( SELECT ProductID FROM Products p
+                                            WHERE p.ProductID = od.ProductID
+                                            AND EXISTS( SELECT CategoryID FROM Categories cat
+                                                        WHERE cat.CategoryID = p.CategoryID
+                                                        AND cat.CategoryName = 'Seafood'))))
