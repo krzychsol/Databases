@@ -330,3 +330,42 @@ WHERE NOT EXISTS ( SELECT CustomerID FROM Orders o
                                             AND EXISTS( SELECT CategoryID FROM Categories cat
                                                         WHERE cat.CategoryID = p.CategoryID
                                                         AND cat.CategoryName = 'Seafood'))))
+                                                        
+SELECT DISTINCT ProductName,CompanyName,CategoryName
+FROM Products
+JOIN Categories C on Products.CategoryID = C.CategoryID
+JOIN [Order Details] [O D] on Products.ProductID = [O D].ProductID
+JOIN Orders O on O.OrderID = [O D].OrderID AND O.OrderDate NOT BETWEEN '1997-02-20' AND '1997-02-25'
+JOIN Shippers S on S.ShipperID = O.ShipVia
+
+SELECT CompanyName, Employees.FirstName, Employees.LastName, COUNT(*)
+FROM Customers
+         INNER JOIN Orders
+                    ON Orders.CustomerID = Customers.CustomerID AND YEAR(ShippedDate) = 1997
+         INNER JOIN Employees
+                    ON Employees.EmployeeID = Orders.EmployeeID
+
+GROUP BY CompanyName, Employees.EmployeeID, Employees.FirstName, Employees.LastName
+HAVING Employees.EmployeeID IN
+       (SELECT TOP 1 Emp.EmployeeID
+        FROM Employees Emp
+                 INNER JOIN Orders Ord
+                            ON Ord.EmployeeID = Emp.EmployeeID
+                 INNER JOIN Customers Cust
+                            ON Cust.CustomerID = Ord.CustomerID
+        WHERE YEAR(ShippedDate) = 1997
+          AND Cust.CompanyName = Customers.CompanyName
+        GROUP BY Emp.EmployeeID
+        ORDER BY COUNT(*) desc)
+ORDER BY 4 desc
+
+SELECT FirstName,LastName,
+        (SELECT COUNT(OrderDate) FROM Orders o3
+        WHERE o3.EmployeeID = e.EmployeeID AND YEAR(ShippedDate)=1997 AND MONTH(ShippedDate)=2) AS NumOfDoneTasks,
+        ISNULL(SUM(UnitPrice*Quantity*(1-Discount))+(SELECT SUM(Freight) FROM Orders o2
+                                                    WHERE o2.EmployeeID = e.EmployeeID
+                                                    AND YEAR(ShippedDate)=1997 AND MONTH(ShippedDate)=2),0) AS TotalValue
+FROM Employees e
+LEFT JOIN Orders o on e.EmployeeID = o.EmployeeID AND YEAR(ShippedDate)=1997 AND MONTH(ShippedDate)=2
+LEFT JOIN [Order Details] od on o.OrderID = od.OrderID
+GROUP BY e.EmployeeID,FirstName,LastName
