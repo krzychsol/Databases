@@ -139,24 +139,36 @@ b) którzy nie mają podwładnych
  */
 
 --a
-SELECT e.EmployeeID,e.firstname,e.lastname,
-       SUM(Quantity*UnitPrice*(1-Discount))+(SELECT SUM(Freight) FROM Orders o2
-                                            WHERE o2.EmployeeID = e.EmployeeID)
+SELECT e.EmployeeID,
+       e.firstname,
+       e.lastname,
+       (SELECT SUM(Quantity * UnitPrice * (1 - Discount))
+        FROM [Order Details] od2
+        WHERE od2.OrderID IN
+              (SELECT OrderID FROM Orders o3 WHERE o3.EmployeeID = e.EmployeeID)) + (SELECT SUM(Freight)
+                                                                                     FROM Orders o2
+                                                                                     WHERE o2.EmployeeID = e.EmployeeID)
 FROM Employees e
-JOIN Orders O on e.EmployeeID = O.EmployeeID
-JOIN [Order Details] od on O.OrderID = od.OrderID
-JOIN Employees e2 ON e.EmployeeID = e2.ReportsTo
+         JOIN Orders O on e.EmployeeID = O.EmployeeID
+         JOIN [Order Details] od on O.OrderID = od.OrderID
+         JOIN Employees e2 ON e.EmployeeID = e2.ReportsTo
 GROUP BY e.EmployeeID, e.firstname, e.lastname
 
 --b
-SELECT e.EmployeeID,e.firstname,e.lastname,
-       SUM(Quantity*UnitPrice*(1-Discount))+(SELECT SUM(Freight) FROM Orders o2
-                                            WHERE o2.EmployeeID = e.EmployeeID)
+SELECT e.EmployeeID,
+       e.firstname,
+       e.lastname,
+       (SELECT SUM(Quantity * UnitPrice * (1 - Discount))
+        FROM [Order Details] od2
+        WHERE od2.OrderID IN
+              (SELECT OrderID FROM Orders o3 WHERE o3.EmployeeID = e.EmployeeID)) + (SELECT SUM(Freight)
+                                                                                     FROM Orders o2
+                                                                                     WHERE o2.EmployeeID = e.EmployeeID)
 FROM Employees e
-JOIN Orders O on e.EmployeeID = O.EmployeeID
-JOIN [Order Details] od on O.OrderID = od.OrderID
-LEFT JOIN Employees e2 ON e.EmployeeID = e2.ReportsTo
-WHERE e2.FirstName IS NULL
+         JOIN Orders O on e.EmployeeID = O.EmployeeID
+         JOIN [Order Details] od on O.OrderID = od.OrderID
+         LEFT JOIN Employees e2 ON e.EmployeeID = e2.ReportsTo
+         WHERE e2.FirstName IS NULL
 GROUP BY e.EmployeeID, e.firstname, e.lastname
 
 --Zmodyfikuj rozwiązania z pkt 3 tak aby dla pracowników pokazać jeszcze datę
