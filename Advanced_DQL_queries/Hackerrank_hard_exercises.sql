@@ -36,8 +36,8 @@ SELECT con.contest_id,
 FROM Contests con
 INNER JOIN Colleges col ON con.contest_id = col.contest_id
 INNER JOIN Challenges cha ON cha.college_id = col.college_id
-LEFT JOIN SUM_View_Stats vs ON vs.challenge_id = cha.challenge_id
-LEFT JOIN SUM_Submission_Stats ss ON ss.challenge_id = cha.challenge_id
+LEFT JOIN sum_view_stats vs ON vs.challenge_id = cha.challenge_id
+LEFT JOIN sum_submission_stats ss ON ss.challenge_id = cha.challenge_id
 GROUP BY con.contest_id,con.hacker_id,con.name
 HAVING (SUM(total_submissions)
         +SUM(total_accepted_submissions)
